@@ -20,9 +20,9 @@ constexpr uart_config_t UARTConfig = {
         .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
         .rx_flow_ctrl_thresh = 0,
 #if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 0, 0)
-        .source_clk = UART_SCLK_DEFAULT;
+        .source_clk = UART_SCLK_DEFAULT,
 #else
-        .source_clk = UART_SCLK_APB;
+        .source_clk = UART_SCLK_APB,
 #endif
 };
 
