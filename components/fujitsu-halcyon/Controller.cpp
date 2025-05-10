@@ -149,6 +149,14 @@ void Controller::process_packet(const Packet::Buffer& buffer, bool lastPacketOnW
     // Parse buffer
     Packet packet(buffer);
 
+    ESP_LOGE(TAG, "Processing packet: %b", lastPacketOnWire);
+    ESP_LOGE(TAG, "Processing initialization_stage: ", this->initialization_stage);
+    ESP_LOGE(TAG, "SourceType: %d", packet.SourceType);
+    ESP_LOGE(TAG, "SourceAddress: %d", packet.SourceAddress);
+    ESP_LOGE(TAG, "TokenDestinationType: %d", packet.TokenDestinationType);
+    ESP_LOGE(TAG, "TokenDestinationAddress: %d", packet.TokenDestinationAddress);
+    ESP_LOGE(TAG, "Type: %d", packet.Type);
+
     // Finish initialization
     if (this->initialization_stage == InitializationStageEnum::FindNextControllerRx) {
         // Controller with address > configured did not transmit
@@ -161,6 +169,7 @@ void Controller::process_packet(const Packet::Buffer& buffer, bool lastPacketOnW
 
     // Process packets from Indoor Units
     if (packet.SourceType == AddressTypeEnum::IndoorUnit) {
+        ESP_LOGE(TAG, "-from Indoor Unit-");
         switch (packet.Type) {
             [[likely]] case PacketTypeEnum::Config:
                 if (this->last_error_flag != packet.Config.IndoorUnit.Error)
@@ -195,6 +204,9 @@ void Controller::process_packet(const Packet::Buffer& buffer, bool lastPacketOnW
                 break;
         }
     } else {
+        ESP_LOGE(TAG, "-from Controller-");
+        ESP_LOGE(TAG, "SourceAddress: %d", packet.SourceAddress);
+        ESP_LOGE(TAG, "PacketType: %d", packet.Type);
         switch (packet.Type) {
             // Config packet from another controller
             [[likely]] case PacketTypeEnum::Config:
@@ -206,6 +218,9 @@ void Controller::process_packet(const Packet::Buffer& buffer, bool lastPacketOnW
         }
     }
 
+    ESP_LOGE(TAG, "lastPacketOnWire: %d", lastPacketOnWire);
+    ESP_LOGE(TAG, "next_token_destination_type: %d", this->next_token_destination_type);
+    ESP_LOGE(TAG, "controller_address: %d", this->controller_address);
     // Emit a packet if given the token and not processing old packets
     if (lastPacketOnWire && packet.TokenDestinationType == AddressTypeEnum::Controller && packet.TokenDestinationAddress == this->controller_address) {
         Packet tx_packet;
